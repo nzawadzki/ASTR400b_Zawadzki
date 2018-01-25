@@ -7,13 +7,11 @@ import astropy.units as u
 import math as m
 from ReadFile import *
 
-filename='MW_000.txt'
-
 #function to calcuate 3D position, velocity, and mass
 #of the (j+1)th particle of type i
-def ParticleInfo(i,j):
+def ParticleInfo(filename,i,j):
     #read in function for ReadFile
-    t,nparticle,data=Read('MW_000.txt')
+    t,nparticle,data=Read(filename)
 
     #index for type of particle
     index = np.where(data['type']==i)
@@ -46,7 +44,7 @@ def ParticleInfo(i,j):
     return rounded_distance, rounded_velocity, rounded_mass
 
 #print information for 100th particle of type 2(disk)
-d,v,m = ParticleInfo(2,99)
+d,v,m = ParticleInfo('MW_000.txt',2,99)
 print "3D distance=", d
 print "3D velocity=", v
 print "Mass=", m
