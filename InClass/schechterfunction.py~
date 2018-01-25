@@ -1,0 +1,17 @@
+#InClass worksheet 1
+#1/25/18
+#plotting the schechter function
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+def Schechter(alpha, Mstar, phi_star):
+    M=-20
+    #define helpful variables to break up function
+    a = 10**(0.4*(Mstar-M)*(alpha-1)) #power law
+    exp = np.exp(-10**(0.4*(Mstar-M))) #decaying exponential
+    Phi = (0.4*np.ln(10))*phi_star*a*exp
+
+    #for loop for finding value of function over range of values
+    
+    
