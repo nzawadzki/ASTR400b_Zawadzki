@@ -5,8 +5,6 @@
 import numpy as np
 import astropy.units as u
 
-filename='MW_000.txt'
-
 #define function that takes name of file as input
 def Read(filename):
     f = open(filename, 'r')
