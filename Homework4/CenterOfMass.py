@@ -44,9 +44,8 @@ class CenterOfMass:
 
     #function to refine COM
     def COM_P(self, d):
-        #initializing tolerance variable
+        #initializing tolerance and position variables
         delta = 100
-        count = 0
         xi = self.x
         yi = self.y
         zi = self.z
@@ -57,14 +56,16 @@ class CenterOfMass:
         rCOM = np.sqrt(COMxi**2 + COMyi**2 + COMzi**2)
         
         #change into center of mass frame
+        #and find magnitude of particles from center of mass
         rnew = np.sqrt((xi-COMxi)**2 + (yi-COMyi)**2 + (zi-COMzi)**2)
+        #find max distance--needed when using smaller volume to recalculate COM
         rmax = np.amax(rnew)
 
         #loop to converge center of mass calculation
         while delta > d:
             #index to find particles within smaller volume
             index = np.where(rnew < (rmax/2))
-            #store particle that fall within smaller volume
+            #store particles that fall within smaller volume
             xnew = xi[index]
             ynew = yi[index]
             znew = zi[index]
@@ -73,35 +74,28 @@ class CenterOfMass:
             #calculate center of mass again with smaller volume
             xCOM2, yCOM2, zCOM2 = self.COMdefine(xnew, ynew, znew, mnew)
 
-            print xCOM2, yCOM2, zCOM2
+            #print xCOM2, yCOM2, zCOM2
 
             #storing magnitude of vector  
             rCOM2 = np.sqrt(xCOM2**2 + yCOM2**2 + zCOM2**2)
 
-            '''#changing the particle position to the COM reference frame
-            xnew = xi - X
-            ynew = yi - Y
-            znew = zi - Z
-            mnew = mi
-
-            #store new postion vectors
-            rnew = np.sqrt(xnew**2 + ynew**2 + znew**2)
-    
-            #Find the max 3D seperation of the particles from the COM
-            #in COM frame
-            rmax = np.amax(rnew)'''
-
             #find difference to see if COM calculation has converged
             delta = abs(rCOM-rCOM2)
-
-            print delta
+            #print delta
 
             #redefine variables and go back to beginning of loop
-            rnew = np.amax(rCOM2)
+            xnew = xi - xCOM2
+            ynew = yi - yCOM2
+            znew = zi - zCOM2
+            rnew = np.sqrt(xnew**2 + ynew**2 + znew**2)
+            rmax = rmax/2
 
-            count = count + 1
+            rCOM = rCOM2
+            xCOM = xCOM2
+            yCOM = yCOM2
+            zCOM = zCOM2
 
-        return xCOM2, yCOM2, zCOM2
+        return xCOM, yCOM, zCOM
 
     def COM_V(self):
         #temporary variables to store center of mass position
@@ -118,6 +112,7 @@ class CenterOfMass:
         VY = self.vy[index]
         VZ = self.vz[index]
         M = self.m[index]
+        print len(VX), len(VY), len(VZ), len(M)
 
         #calculate COM velocity using COMdefine
         vxCOM, vyCOM, vzCOM = self.COMdefine(VX, VY, VZ, M)
@@ -141,15 +136,12 @@ MWCOM = CenterOfMass("MW_000.txt", 2)
 
 #Answers to Question 1
 # Calculate quantities for MW data
-#MW_mass = MWCOM.total_mass(M)
-#print("MW Disk Mass:", MW_mass)
 
 COM_MWx, COM_MWy, COM_MWz = MWCOM.COM_P(0.3) #calculated with tolerance of 3 pc
 print "1. MW Disk CoM:", (COM_MWx, COM_MWy, COM_MWz)*u.kpc 
 
-'''#print MWCOM.COM_P(0.3)
 vCOM_MWx, vCOM_MWy, vCOM_MWz = MWCOM.COM_V()
-print "MW Disk CoM Velocity:", (vCOM_MWx, vCOM_MWy, vCOM_MWz)*u.km/u.s'''
+print "MW Disk CoM Velocity:", (vCOM_MWx, vCOM_MWy, vCOM_MWz)*u.km/u.s
 
 #Create a Center of mass object for M31
 M31COM = CenterOfMass("M31_000.txt", 2)
@@ -158,9 +150,6 @@ print ""
 COM_M31x, COM_M31y, COM_M31z = M31COM.COM_P(0.3)
 print "M31 Disk CoM:", (COM_M31x, COM_M31y, COM_M31z)*u.kpc
 
-'''#COMx, COMy, COMz = M31COM.COM_P(0.3)
-
-#print COM_M31x, COM_M31y, COM_M31z
 vCOM_M31x, vCOM_M31y, vCOM_M31z = M31COM.COM_V()
 print "M31 Disk CoM Velocity:", (vCOM_M31x, vCOM_M31y, vCOM_M31z)*u.km/u.s
 
