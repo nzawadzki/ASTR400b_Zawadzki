@@ -99,13 +99,13 @@ class CenterOfMass:
 
     def COM_V(self):
         #temporary variables to store center of mass position
-        tempx, tempy, tempz = self.COM_P(0.3)
+        tempx, tempy, tempz = self.COMdefine(self.x,self.y,self.z,self.m)
         tempr = np.sqrt(tempx**2 + tempy**2 + tempz**2)
         tempri = np.sqrt(self.x**2 + self.y**2 + self.z**2)
         
         #store velocities of particles within 15kpc of the COM
         #index to find particles
-        index = np.where(abs(tempr-tempri) < 15)
+        index = np.where(abs(tempri-tempr) < 15)
 
         #velocity arrays
         VX = self.vx[index]
@@ -176,11 +176,16 @@ print "Current MW/M31 velocity separation:", V_diff*u.km/u.s
 print ""
 
 #Answer to Question 3
-rCOM_M33 = np.sqrt(COM_M33x**2 + COM_M33y**2 + COM_M33z**2)
-P_diff = abs(rCOM_M31 - rCOM_M33)
-print "3. Current M31/M33 position separation:", P_diff*u.kpc
-vCOM_M33 = np.sqrt(vCOM_M33x**2 + vCOM_M33y**2 + vCOM_M33z**2)
-V_diff = abs(vCOM_M31 - vCOM_M33)
-print "Current M31/M33 velocity separation:", V_diff*u.km/u.s
+#Take the diffference of each component, then find the magnitude of that 
+psepx = abs(COM_M31x - COM_M33x)
+psepy = abs(COM_M31y - COM_M33y)
+psepz = abs(COM_M31z - COM_M33z)
+rsep = np.sqrt(psepx**2 + psepy**2 + psepz**2)
+print "3. Current M31/M33 position separation:", rsep*u.kpc
+vsepx = abs(vCOM_M31x - vCOM_M33x)
+vsepy = abs(vCOM_M31y - vCOM_M33y)
+vsepz = abs(vCOM_M31z - vCOM_M33z)
+vsep = np.sqrt(vsepx**2 + vsepy**2 + vsepz**2)
+print "Current M31/M33 velocity separation:", vsep*u.km/u.s
 print ""
 #Answer to Question 4'''
