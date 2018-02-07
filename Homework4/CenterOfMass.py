@@ -107,7 +107,7 @@ class CenterOfMass:
         
         #store velocities of particles within 15kpc of the COM
         #index to find particles
-        index = np.where(abs(r) < 15)
+        index = np.where(r < 15)
 
         #velocity arrays
         VX = self.vx[index]
@@ -119,20 +119,12 @@ class CenterOfMass:
         vxCOM, vyCOM, vzCOM = self.COMdefine(VX, VY, VZ, M)
 
         return vxCOM, vyCOM, vzCOM
-
-
-#defining variables required for functions to work outside of the class
-t, n, data = Read('M31_000.txt')
-index = np.where(data['type'] == 2)
-x = data['x'][index]
-y = data['y'][index]
-z = data['z'][index]
-M = data['m'][index]*u.Msun*1e10
-    
+   
 # EXAMPLE OF USING A CLASS
 ##########################
 #Answers to Question 1
 # Create a Center of mass object for the MW
+print ""
 MWCOM = CenterOfMass("MW_000.txt", 2)
 # Calculate quantities for MW data
 COM_MWx, COM_MWy, COM_MWz = MWCOM.COM_P(1) #calculated with tolerance of 3 pc
@@ -186,4 +178,6 @@ vsepz = abs(vCOM_M31z - vCOM_M33z)
 vsep = np.sqrt(vsepx**2 + vsepy**2 + vsepz**2)
 print "Current M31/M33 velocity separation:", vsep*u.km/u.s
 print ""
-#Answer to Question 4'''
+#Answer to Question 4
+print '4. The iterative process is important because when the galaxies begin to colllide they will change shape due to tidal forces. This will change where the center of mass is located.'
+print ""
