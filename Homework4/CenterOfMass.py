@@ -99,20 +99,21 @@ class CenterOfMass:
 
     def COM_V(self):
         #temporary variables to store center of mass position
-        tempx, tempy, tempz = self.COMdefine(self.x,self.y,self.z,self.m)
-        tempr = np.sqrt(tempx**2 + tempy**2 + tempz**2)
-        tempri = np.sqrt(self.x**2 + self.y**2 + self.z**2)
+        tempx, tempy, tempz = self.COM_P(1)
+        xcom = self.x - tempx
+        ycom = self.y - tempy
+        zcom = self.z - tempz
+        r = np.sqrt(xcom**2 + ycom**2 + zcom**2)
         
         #store velocities of particles within 15kpc of the COM
         #index to find particles
-        index = np.where(abs(tempri-tempr) < 15)
+        index = np.where(abs(r) < 15)
 
         #velocity arrays
         VX = self.vx[index]
         VY = self.vy[index]
         VZ = self.vz[index]
         M = self.m[index]
-        print len(VX), len(VY), len(VZ), len(M)
 
         #calculate COM velocity using COMdefine
         vxCOM, vyCOM, vzCOM = self.COMdefine(VX, VY, VZ, M)
@@ -130,14 +131,11 @@ M = data['m'][index]*u.Msun*1e10
     
 # EXAMPLE OF USING A CLASS
 ##########################
-
+#Answers to Question 1
 # Create a Center of mass object for the MW
 MWCOM = CenterOfMass("MW_000.txt", 2)
-
-#Answers to Question 1
 # Calculate quantities for MW data
-
-COM_MWx, COM_MWy, COM_MWz = MWCOM.COM_P(0.3) #calculated with tolerance of 3 pc
+COM_MWx, COM_MWy, COM_MWz = MWCOM.COM_P(1) #calculated with tolerance of 3 pc
 print "1. MW Disk CoM:", (COM_MWx, COM_MWy, COM_MWz)*u.kpc 
 
 vCOM_MWx, vCOM_MWy, vCOM_MWz = MWCOM.COM_V()
@@ -147,7 +145,7 @@ print "MW Disk CoM Velocity:", (vCOM_MWx, vCOM_MWy, vCOM_MWz)*u.km/u.s
 M31COM = CenterOfMass("M31_000.txt", 2)
 print ""
 #Calculate quantities for M31 data
-COM_M31x, COM_M31y, COM_M31z = M31COM.COM_P(0.3)
+COM_M31x, COM_M31y, COM_M31z = M31COM.COM_P(1)
 print "M31 Disk CoM:", (COM_M31x, COM_M31y, COM_M31z)*u.kpc
 
 vCOM_M31x, vCOM_M31y, vCOM_M31z = M31COM.COM_V()
@@ -157,7 +155,7 @@ print "M31 Disk CoM Velocity:", (vCOM_M31x, vCOM_M31y, vCOM_M31z)*u.km/u.s
 M33COM = CenterOfMass("M33_000.txt", 2)
 print ""
 #Calculate quantities for M33 data
-COM_M33x, COM_M33y, COM_M33z = M33COM.COM_P(3)
+COM_M33x, COM_M33y, COM_M33z = M33COM.COM_P(1)
 print "M33 Disk CoM:", (COM_M33x, COM_M33y, COM_M33z)*u.kpc
 
 vCOM_M33x, vCOM_M33y, vCOM_M33z = M33COM.COM_V()
