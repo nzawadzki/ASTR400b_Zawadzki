@@ -67,34 +67,23 @@ class MassProfile:
     def MassEnclosedTotal(self,r):
         #initialize total mass array
         mtotarray = []
-        #use MassEnclosed to find the mass for each partice type at each radius
+
+        #use MassEnclosed to find the mass for each partice type
+        HaloMassEnclosed = self.MassEnclosed(1,r)
+        DiskMassEnclosed = self.MassEnclosed(2,r)
         #caveat to account for M33 having no buldge
         if self.gname != 'M33':
+            BuldgeMassEnclosed = self.MassEnclosed(3,r)
             #looping over radius element
             for element in range(len(r)):
-                mtot1=np.zeros(shape=(3))
-                #looping over particle type
-                for n in range(1,4):
-                    #using MassEnclosed for the mass array of article type n, isolate one element in the mass array and sum the three particle type masses for that element. Then go bakc and loop to the next element
-                    mtot2 = self.MassEnclosed(n,r)
-                    mtot2element = mtot2[element]
-                    print mtot2element
-                    #assign mass of particle type n to temp array
-                    mtot1[n-1] = mtot2element
-                mtotsum = np.sum(mtot1)
-                mtotal.append(mtotsum)
+                mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element] + BuldgeMassEnclosed[element])
+                mtotarray.append(mtotal)
         else:
             #do the same thing but only loop over type 0 and 1
             for element in range(len(r)):
-                mtot1 = np.zeros(shape=(2))
-                for n in range(1,3):
-                    mtot2 = self.MassEnclosed(n,r)[element]
-                    #assign mass of particle type n to temp array
-                    mtot1[n-1] = mtot2
-                mtotsum = np.sum(mtot1)
-                mtotal.append(mtotsum)
-                
-        mtotarray = mtotal
+                mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element])
+                mtotarray.append(mtotal)
+
         return mtotarray*u.Msun 
     
     #function that takes radius, a scale factor, and the halo mass to compute the mass enlosed awithin a radius using a theoretical profile
