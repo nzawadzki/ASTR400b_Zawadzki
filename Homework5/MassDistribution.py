@@ -68,26 +68,32 @@ class MassProfile:
         #initialize total mass array
         mtotarray = []
         #use MassEnclosed to find the mass for each partice type at each radius
-        mtot2 = 0
-        count = 0
-        n = np.arange(0,3)
-        #looping over array element
-        for element in range(len(r)):
-            #find mass array of type n
-            mtot1 = self.MassEnclosed(n,r)
-            #add it to the total mass array
-            mtotsum = np.sum(mtot1[element])
-            #mtot2 is initialized as 0 before the loop in order for the addition to work for the first particle tyep
-            mtotal.append(mtotsum)
-            '''
-            #caveat to account for M33 having no buldge
-            if self.gname != 'M33' and n != 2:
-                #reassign mtot2 for the next loop
-                mtot2 = mtotal
-            else:
-                #do nothing
-                a = 0'''
-        
+        #caveat to account for M33 having no buldge
+        if self.gname != 'M33':
+            #looping over radius element
+            for element in range(len(r)):
+                mtot1=np.zeros(shape=(3))
+                #looping over particle type
+                for n in range(1,4):
+                    #using MassEnclosed for the mass array of article type n, isolate one element in the mass array and sum the three particle type masses for that element. Then go bakc and loop to the next element
+                    mtot2 = self.MassEnclosed(n,r)
+                    mtot2element = mtot2[element]
+                    print mtot2element
+                    #assign mass of particle type n to temp array
+                    mtot1[n-1] = mtot2element
+                mtotsum = np.sum(mtot1)
+                mtotal.append(mtotsum)
+        else:
+            #do the same thing but only loop over type 0 and 1
+            for element in range(len(r)):
+                mtot1 = np.zeros(shape=(2))
+                for n in range(1,3):
+                    mtot2 = self.MassEnclosed(n,r)[element]
+                    #assign mass of particle type n to temp array
+                    mtot1[n-1] = mtot2
+                mtotsum = np.sum(mtot1)
+                mtotal.append(mtotsum)
+                
         mtotarray = mtotal
         return mtotarray*u.Msun 
     
@@ -126,7 +132,7 @@ rarr = np.arange(0.1,10.1)
 #Testing class
 MWProfile = MassProfile('MW',0)
 MWMass = MWProfile.MassEnclosed(2,rarr)
-print MWMass
+#print MWMass
 
 MWMassTot = MWProfile.MassEnclosedTotal(rarr)
 print MWMassTot
