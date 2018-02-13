@@ -79,7 +79,7 @@ class MassProfile:
                 mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element] + BuldgeMassEnclosed[element])
                 mtotarray.append(mtotal)
         else:
-            #do the same thing but only loop over type 0 and 1
+            #do the same thing but only sum halo and disk
             for element in range(len(r)):
                 mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element])
                 mtotarray.append(mtotal)
@@ -115,16 +115,37 @@ class MassProfile:
     #function to calculate the total circular velocity of (buldge+disk+halo) at each input radii
     def CircularVelocityTotal(self,r):
         return r
-
-rarr = np.arange(0.1,10.1)
-
-#Testing class
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+#radius array out to 30kpc
+rarr = np.logspace(-1,1.477,10)
+#Create class objects for each galaxy
 MWProfile = MassProfile('MW',0)
-MWMass = MWProfile.MassEnclosed(2,rarr)
-#print MWMass
+M31Profile = MassProfile('M31',0)
+M33Profile = MassProfile('M33',0)
+#Mass Components of MW
+MWHaloMass = MWProfile.MassEnclosed(1,rarr)
+MWDiskMass = MWProfile.MassEnclosed(2,rarr)
+MWBuldgeMass = MWProfile.MassEnclosed(3,rarr)
+MWTotMass = MWProfile.MassEnclosedTotal(rarr)
+#print len(MWHaloMass)
 
-MWMassTot = MWProfile.MassEnclosedTotal(rarr)
-print MWMassTot
+#Hernquist Mass Profile
+MWHernquist = MWProfile.HernquistMass(rarr,10,MWHaloMass[9])
+#plotting mass components and Hernquist
+plt.semilogy(rarr, MWHaloMass, color = 'red', label = 'Halo Mass')
+plt.semilogy(rarr, MWDiskMass, color = 'blue', label = 'Disk Mass')
+plt.semilogy(rarr, MWBuldgeMass, color = 'green', label = 'Buldge Mass')
+plt.semilogy(rarr, MWTotMass, color = 'black', label = 'Total Mass')
+plt.semilogy(rarr, MWHernquist, color = 'pink', label = 'Hernquist a=10')
+legend = ax.legend(loc='lower right')
+plt.title('MW Mass Profile')
+plt.xlabel('Distance from Center of Mass (kpc)')
+plt.ylabel('Mass Enclosed (Msun)')
+plt.show()
+
+#MWMassTot = MWProfile.MassEnclosedTotal(rarr)
+#print MWMassTot
     
            
         
