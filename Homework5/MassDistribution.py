@@ -56,23 +56,23 @@ class MassProfile:
         z2 = self.z[index] - COMP[2]
         r2 = np.sqrt(x2**2 + y2**2 + z2**2)
         #loop over radius array to define particles that are enclosed within the radius given at each element
-        count = 0
-        for radius in r:
+        for radius in range(len(r)):
             #find and store particle masses that are within given radius
-            index2 = np.where(r2 < radius)
-            mnew = m2[index2]
+            index2 = np.where(r2 < r[radius])
+            marray[radius] = np.sum(m2[index2])
+            '''
             #sum to find mass enclosed
             msum = np.sum(mnew)
             #append to mass array
             marray[count] = msum
             count = count +1
-            
+            '''
         return marray
     
     #takes in array of radii and return array of total masses at each radius
     def MassEnclosedTotal(self,r):
         #initialize total mass array
-        mtotarray = []
+        #mtotarray = []
 
         #use MassEnclosed to find the mass for each partice type
         HaloMassEnclosed = self.MassEnclosed(1,r)
@@ -81,15 +81,13 @@ class MassProfile:
         if self.gname != 'M33':
             BuldgeMassEnclosed = self.MassEnclosed(3,r)
             #looping over radius element
-            for element in range(len(r)):
-                mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element] + BuldgeMassEnclosed[element])
-                mtotarray.append(mtotal)
+            '''for element in range(len(r)):'''
+            mtotalarray = HaloMassEnclosed + DiskMassEnclosed + BuldgeMassEnclosed
         else:
             #do the same thing but only sum halo and disk
-            for element in range(len(r)):
-                mtotal = (HaloMassEnclosed[element] + DiskMassEnclosed[element])
-                mtotarray.append(mtotal)
-
+            #for element in range(len(r)):
+            mtotalarray = HaloMassEnclosed + DiskMassEnclosed
+        
         return mtotarray
     
     #function that takes radius, a scale factor, and the halo mass to compute the mass enlosed awithin a radius using a theoretical profile
@@ -108,40 +106,36 @@ class MassProfile:
         #solve for velocity
         G = constant.G.to(u.kpc*u.km**2/u.s**2/u.Msun)
         #Fg = G*Mm/r**2=mv**2/r
+        M = self.MassEnclosed(ptype, r)
         #loop over radius array
-        #define counter
-        count = 0
-        for radius in r:
-            v = np.sqrt(G*self.MassEnclosed(ptype,r)[count]/radius)
-            V[count] = v.value
-            count = count + 1
+        #for radius in r:
+        v = np.round(np.sqrt(G*M/r), 2)
+        V = v.value
+        
         #print V
         return V
     
     #function to calculate the total circular velocity of (buldge+disk+halo) at each input radii
     def CircularVelocityTotal(self,r):
         #initializing total circular velocity array
-        Vtot = np.zeros(shape=len(r))
+        #Vtot = np.zeros(shape=len(r))
         #sum mass components in velocity equation to find the total circular velocity
+        Mtot = self.MassEnclosedTotal(r)
         G = constant.G.to(u.kpc*u.km**2/u.s**2/u.Msun)
-        count = 0
-        for radius in r:
-            vtot = np.sqrt(G*self.MassEnclosedTotal(r)[count]/radius)
-            Vtot[count] = vtot.value
-            count = count+1
+        vtot = np.round(np.sqrt(G*Mtot/r), 2)
+        Vtot = vtot.value
+        
         return Vtot
 
     #function that computes circular speed using the Hernquist mass profile
     #takes radius, scale factor (a), and halo mass as input, and returns circular speed to two decimal places
     def HernquistVCirc(self,r, a, Mhalo):
-        HernquistV = np.zeros(shape=len(r))
+        #HernquistV = np.zeros(shape=len(r))
         G = constant.G.to(u.kpc*u.km**2/u.s**2/u.Msun)
         M = self.HernquistMass(r, a, Mhalo)
-        count = 0
-        for radius in r:
-            vhernquist = np.sqrt(G*M[count]/radius)
-            HernquistV[count]=vhernquist.value
-            count = count+1
+    
+        vhernquist = np.round(np.sqrt(G*M/r), 2)
+        HernquistV[count]=vhernquist.value
         
         return HernquistV
  
@@ -154,7 +148,7 @@ print len(rarr)
 MWProfile = MassProfile('MW',0)
 M31Profile = MassProfile('M31',0)
 M33Profile = MassProfile('M33',0)
-
+'''
 #Mass Components of MW
 MWHaloMass = MWProfile.MassEnclosed(1,rarr)
 print type(MWHaloMass)
@@ -165,7 +159,7 @@ MWTotMass = MWProfile.MassEnclosedTotal(rarr)
 #Hernquist Mass Profile
 #print MWHaloMass[9]
 MWHernquist = MWProfile.HernquistMass(rarr,60,MWHaloMass[9])
-'''
+
 #plotting mass components and Hernquist for MW
 plt.semilogy(rarr, MWHaloMass, color = 'red', label = 'Halo Mass')
 plt.semilogy(rarr, MWDiskMass, color = 'blue', label = 'Disk Mass')
@@ -180,7 +174,7 @@ plt.show()
 
 #ax.set_rastersized(True)
 plt.savefig('MWMassProfile.eps')
-
+'''
 #Mass Components for M31
 M31HaloMass = M31Profile.MassEnclosed(1,rarr)
 M31DiskMass = M31Profile.MassEnclosed(2,rarr)
@@ -188,6 +182,7 @@ M31BuldgeMass = M31Profile.MassEnclosed(3,rarr)
 M31TotMass = M31Profile.MassEnclosedTotal(rarr)
 #Hernquist Mass Profile
 M31Hernquist = M31Profile.HernquistMass(rarr,20,M31HaloMass[9])
+'''
 #plotting mass components and Hernquist for MW
 plt.semilogy(rarr, M31HaloMass, color = 'red', label = 'Halo Mass')
 plt.semilogy(rarr, M31DiskMass, color = 'blue', label = 'Disk Mass')
@@ -200,13 +195,14 @@ plt.xlabel('Distance from Center of Mass (kpc)')
 plt.ylabel('Mass Enclosed (Msun)')
 #ax.set_rastersized(True)
 plt.savefig('M31MassProfile.eps')
-
+'''
 #Mass Components for M33
 M33HaloMass = M33Profile.MassEnclosed(1,rarr)
 M33DiskMass = M33Profile.MassEnclosed(2,rarr)
 M33TotMass = M33Profile.MassEnclosedTotal(rarr)
 #Hernquist Mass Profile
 M33Hernquist = M33Profile.HernquistMass(rarr,15,M33HaloMass[9])
+'''
 #plotting mass components and Hernquist for M33
 plt.semilogy(rarr, M33HaloMass, color = 'red', label = 'Halo Mass')
 plt.semilogy(rarr, M33DiskMass, color = 'blue', label = 'Disk Mass')
@@ -218,7 +214,7 @@ plt.xlabel('Distance from Center of Mass (kpc)')
 plt.ylabel('Mass Enclosed (Msun)')
 #ax.set_rastersized(True)
 plt.savefig('M33MassProfile.eps')
-'''
+
 #Velocity components of MW
 vMWHalo = MWProfile.CircularVelocity(1,rarr)
 print len(vMWHalo), type(vMWHalo)
@@ -236,9 +232,9 @@ legend = ax.legend(loc='lower right')
 plt.title('MW Velocity Profile')
 plt.xlabel('Distance from Center of Mass (kpc)')
 plt.ylabel('Circular Velocity (km/s)')
-plt.show()
+#plt.show()
 #ax.set_rastersized(True)
-#plt.savefig('MWVelocityProfile.eps')
+plt.savefig('MWVelocityProfile.eps')
 '''
 #Velocity components of M31
 vM31Halo = M31Profile.CircularVelocity(1,rarr)*(u.km/u.s)
@@ -247,16 +243,17 @@ vM31Disk = M31Profile.CircularVelocity(2,rarr)*(u.km/u.s)
 vM31Buldge = M31Profile.CircularVelocity(3,rarr)*(u.km/u.s)
 vM31Tot = M31Profile.CircularVelocityTotal(rarr)*(u.km/u.s)
 #Hernquist velocity
-#vM31Hernquist = M31Profile.HernquistVCirc(rarr,1,MWHaloMass[9])
+vM31Hernquist = M31Profile.HernquistVCirc(rarr,12,M31HaloMass[9])
 plt.plot(rarr, vM31Halo, color = 'red', label = 'Halo Velocity')
 plt.plot(rarr, vM31Disk, color = 'blue', label = 'Disk Velocity')
 plt.plot(rarr, vM31Buldge, color = 'green', label = 'Buldge Velocity')
 plt.plot(rarr, vM31Tot, color = 'black', label = 'Total Velocity')
-#plt.plot(rarr, vM31Hernquist, color = 'pink', label = 'Hernquist a=1')
+plt.plot(rarr, vM31Hernquist, color = 'pink', label = 'Hernquist a=12')
 legend = ax.legend(loc='lower right')
 plt.title('M31 Velocity Profile')
 plt.xlabel('Distance from Center of Mass (kpc)')
 plt.ylabel('Circular Velocity (km/s)')
+#plt.show()
 #ax.set_rastersized(True)
 plt.savefig('M31VelocityProfile.eps')
 
@@ -266,19 +263,19 @@ vM33Halo = M33Profile.CircularVelocity(1,rarr)*(u.km/u.s)
 vM33Disk = M33Profile.CircularVelocity(2,rarr)*(u.km/u.s)
 vM33Tot = M33Profile.CircularVelocityTotal(rarr)*(u.km/u.s)
 #Hernquist velocity
-#vM33Hernquist = M33Profile.HernquistVCirc(rarr,1,M33HaloMass[9])
+vM33Hernquist = M33Profile.HernquistVCirc(rarr,10,M33HaloMass[9])
 plt.plot(rarr, vM33Halo, color = 'red', label = 'Halo Velocity')
 plt.plot(rarr, vM33Disk, color = 'blue', label = 'Disk Velocity')
 plt.plot(rarr, vM33Tot, color = 'black', label = 'Total Velocity')
-#plt.plot(rarr, vM33Hernquist, color = 'pink', label = 'Hernquist a=1')
+plt.plot(rarr, vM33Hernquist, color = 'pink', label = 'Hernquist a=10')
 legend = ax.legend(loc='lower right')
 plt.title('M33 Velocity Profile')
 plt.xlabel('Distance from Center of Mass (kpc)')
 plt.ylabel('Circular Velocity (km/s)')
+#plt.show()
 #ax.set_rastersized(True)
 plt.savefig('M33VelcoityProfile.eps')
 
-'''
            
         
             
