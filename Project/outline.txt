@@ -1,0 +1,16 @@
+1. Rotating M33 to get edge on frame of reference
+	 use code from in class lab
+2. Finding snapshots to use
+	use extra credit from orbit homework to find peri and apocenters
+3. Looking at 1D density profiles from simulation
+	adapt density profile in class?
+	or use start at the mass distribution homeowrk and plot over radius shells?
+	at break in the profile is the tidal radius
+4. Compare to analytic solution for tidal radius
+   	Use equation from (van den Bosch 2018)
+	r(tidal) = R*(m/2M)**(1/3)
+	1st-using point masses for galaxies
+	2nd-using hernquist profile--once merging use mass of both galaxies
+		  for finding a calculate lots of profiles and find the X^2 value for each fit and then at each snapshot use the profile with the smallest X^2 value
+5. Plot the rotation curve at the snapshopts within the tidal radius
+     using homework problem but changing index to within raius
